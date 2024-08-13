@@ -1,0 +1,77 @@
+---
+title: "wilddata"
+author: "Eva Newby"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: FALSE
+---
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+mack_verts <- read_csv(here::here("data", "AS00601.csv"))
+view(mack_verts)
+```
+
+#data wrangle
+```{r}
+mack_verts <- clean_names(mack_verts)
+```
+
+```{r}
+mc_wt_5 <- mack_verts$weight[5]
+mc_length_8_20 <- mack_verts$length1[8:20]
+mc_dates <- mack_verts$sampledate
+```
+
+# Make a salamander subset
+```{r}
+library(dplyr)
+mc_salamanders <- mack_verts %>% filter(species == "DITE")
+```
+
+# Make a salamander plot
+```{r}
+ggplot(data = mc_salamanders,
+       aes(x = length1, y = weight)) +
+  geom_point(color = "blue", size = 1.2, alpha = 1.3) +
+  labs( x = "Snout Length (mm)", 
+        y = "Weight (g)", 
+        title = "Pacific Giant Salamander Snout Length vs Weight")+
+  theme_minimal()
+
+```
+
+# export plot
+```{r}
+ggsave(here::here("figs", "salamander_size.png"))
+```
+
+#Cut throat Plot
+```{r}
+library(dplyr)
+mc_trout <- mack_verts %>% filter(species == "ONCL")
+
+
+ggplot(data = mc_trout,
+       aes(x = length1, y = weight, color = reach)) +
+  geom_point(size = 1.2, alpha = 1.3, show.legend = FALSE) +
+  scale_color_manual(values = c("black","blue","green"))+
+  labs( x = "Snout Length (mm)", 
+        y = "Weight (g)", 
+        title = "Pacific Trout Snout Length vs Weight")+
+    theme_minimal()+ 
+    facet_wrap(~reach)
+  
+```
+#Export plot
+```{r}
+ggsave(here::here("figs", "cutthroat_size.png"))
+```
+
